@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, BarChart3 } from "lucide-react";
+import { Menu, X, BarChart3, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useIsAdmin";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -16,6 +17,7 @@ const navLinks = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -49,8 +51,16 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden lg:block">
+          {/* CTA + Admin */}
+          <div className="hidden lg:flex items-center gap-2">
+            {user && (
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/admin">
+                  <Settings className="w-4 h-4" />
+                  Admin
+                </Link>
+              </Button>
+            )}
             <Button variant="accent" size="default" asChild>
               <Link to="/contact">Let's Talk</Link>
             </Button>
@@ -62,21 +72,12 @@ const Navbar = () => {
             className="lg:hidden p-2 rounded-lg hover:bg-secondary transition-colors"
             aria-label="Toggle menu"
           >
-            {isOpen ? (
-              <X className="w-6 h-6 text-foreground" />
-            ) : (
-              <Menu className="w-6 h-6 text-foreground" />
-            )}
+            {isOpen ? <X className="w-6 h-6 text-foreground" /> : <Menu className="w-6 h-6 text-foreground" />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
-        <div
-          className={cn(
-            "lg:hidden overflow-hidden transition-all duration-300 ease-in-out",
-            isOpen ? "max-h-96 pb-4" : "max-h-0"
-          )}
-        >
+        <div className={cn("lg:hidden overflow-hidden transition-all duration-300 ease-in-out", isOpen ? "max-h-[500px] pb-4" : "max-h-0")}>
           <div className="flex flex-col gap-1 pt-2">
             {navLinks.map((link) => (
               <Link
@@ -93,10 +94,17 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Button variant="accent" size="lg" className="mt-2" asChild>
-              <Link to="/contact" onClick={() => setIsOpen(false)}>
-                Let's Talk
+            {user && (
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-3 rounded-lg text-sm font-medium text-accent hover:bg-accent/10"
+              >
+                Admin Panel
               </Link>
+            )}
+            <Button variant="accent" size="lg" className="mt-2" asChild>
+              <Link to="/contact" onClick={() => setIsOpen(false)}>Let's Talk</Link>
             </Button>
           </div>
         </div>
